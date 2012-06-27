@@ -172,7 +172,6 @@ AC_SEARCH_LIBS([inet_addr], [nsl])
 # Checks for header files.
 AC_CHECK_HEADERS([m4_normalize([
   fcntl.h
-  langinfo.h
   limits.h
   locale.h
   netdb.h
@@ -198,6 +197,7 @@ AC_CHECK_HEADERS([endian.h sys/endian.h])
 AC_CHECK_HEADERS([utmpx.h])
 AC_CHECK_HEADERS([termio.h])
 AC_CHECK_HEADERS([sys/uio.h])
+AC_CHECK_HEADERS([langinfo.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
