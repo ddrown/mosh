@@ -165,7 +165,6 @@ namespace Network {
     int port( void ) const;
     string get_key( void ) const { return key.printable_key(); }
     bool get_has_remote_addr( void ) const { return has_remote_addr; }
-    void forget_remote_addr() { has_remote_addr = false; }
 
     uint64_t timeout( void ) const;
     double get_SRTT( void ) const { return SRTT; }
