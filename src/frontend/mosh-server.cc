@@ -528,11 +528,6 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
       if ( !network.has_remote_addr() ) {
         timeout = min( timeout, timeout_if_no_client );
       }
-      uint64_t time_since_remote_state = now - network.get_latest_remote_state().timestamp;
-      if(time_since_remote_state > 60000) {
-        // slow down if we haven't heard from the client
-        timeout = max( timeout, 300000);
-      }
 
       int active_fds = sel.select( timeout );
       if ( active_fds < 0 ) {
@@ -541,7 +536,7 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
       }
 
       now = Network::timestamp();
-      time_since_remote_state = now - network.get_latest_remote_state().timestamp;
+      uint64_t time_since_remote_state = now - network.get_latest_remote_state().timestamp;
 
       if ( sel.read( network.fd() ) ) {
 	/* packet received from the network */
