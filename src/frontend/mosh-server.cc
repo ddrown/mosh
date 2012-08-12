@@ -504,7 +504,6 @@ int run_server( const char *desired_ip, const char *desired_port,
 
 void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network )
 {
-  bool waiting_on_first_packet = true;
   /* prepare to poll for events */
   Select &sel = Select::get_instance();
   sel.add_fd( network.fd() );
@@ -524,7 +523,6 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
     try {
       uint64_t now = Network::timestamp();
 
-      const uint64_t timeout_if_no_acks = 10000;
       const int timeout_if_no_client = 60000;
       int timeout = min( network.wait_time(), terminal.wait_time( now ) );
       if ( !network.has_remote_addr() ) {
@@ -587,10 +585,6 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
 	    break;
 	  }
 
-          if(waiting_on_first_packet && network.has_remote_addr()) {
-            waiting_on_first_packet = false;
-          }
-
 	  #ifdef HAVE_UTEMPTER
 	  /* update utmp entry if we have become "connected" */
           std::string remoteAddress = network.getRemoteIP();
@@ -607,12 +601,6 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
 	  }
 	  #endif
 	}
-      } else {
-        // no network activity this time
-        if(time_since_remote_state > timeout_if_no_acks) {
-          // or in the recent past
-          network.forget_remote_addr();
-        }
       }
       
       if ( sel.read( host_fd ) ) {
@@ -688,7 +676,7 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
       #ifdef HAVE_UTEMPTER
       /* update utmp if has been more than 10 seconds since heard from client */
       if ( connected_utmp ) {
-	if ( time_since_remote_state > timeout_if_no_acks ) {
+	if ( time_since_remote_state > 10000 ) {
 	  utempter_remove_record( host_fd );
 
 	  char tmp[ 64 ];
@@ -708,8 +696,7 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
       }
 
       if ( !network.has_remote_addr()
-           && time_since_remote_state >= uint64_t( timeout_if_no_client )
-           && waiting_on_first_packet) {
+           && time_since_remote_state >= uint64_t( timeout_if_no_client ) ) {
         fprintf( stderr, "No connection within %d seconds.\n",
                  timeout_if_no_client / 1000 );
         break;
