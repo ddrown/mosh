@@ -82,35 +82,6 @@ namespace Network {
     string tostring( Session *session );
   };
 
-  class InternetAddress {
-    private:
-      union {
-        struct sockaddr_storage ss;
-        struct sockaddr_in in;
-        struct sockaddr_in6 in6;
-      } remote_addr;
-      int remote_addr_len;
-    public:
-      InternetAddress();
-      InternetAddress( struct sockaddr_in *sa );
-      InternetAddress( struct sockaddr_in6 *sa );
-      InternetAddress( struct sockaddr_storage *sa, int len);
-      InternetAddress( const char *hostname, const char *port, int socktype );
-      ~InternetAddress() {};
-      int getPort();
-      void setPort(int port);
-      std::string getAddress();
-      void setViaLookup(const char *hostname, const char *port, int socktype );
-      void setAddressBindAny();
-      int getFamily() { return remote_addr.ss.ss_family; };
-      bool operator!=( const InternetAddress &b );
-      bool operator==( const InternetAddress &b );
-      InternetAddress & operator=( const InternetAddress &rhs );
-      struct sockaddr * toSockaddr() { return (struct sockaddr *)&remote_addr; };
-      int sockaddrLen() { return remote_addr_len; };
-      std::string toString();
-  };
-
   class Connection {
   private:
     static const int SEND_MTU = 1400;
@@ -120,11 +91,11 @@ namespace Network {
     static const int PORT_RANGE_LOW  = 60001;
     static const int PORT_RANGE_HIGH = 60999;
 
-    bool try_bind( );
+    static bool try_bind( int socket, uint32_t addr, int port );
 
     int sock;
     bool has_remote_addr;
-    InternetAddress remote_addr;
+    struct sockaddr_in remote_addr;
 
     bool server;
 
@@ -133,7 +104,7 @@ namespace Network {
     Base64Key key;
     Session session;
 
-    void setup( );
+    void setup( void );
 
     Direction direction;
     uint64_t next_seq;
@@ -169,7 +140,8 @@ namespace Network {
 
     uint64_t timeout( void ) const;
     double get_SRTT( void ) const { return SRTT; }
-    std::string getRemoteIP() { return remote_addr.getAddress(); }
+
+    const struct in_addr & get_remote_ip( void ) const { return remote_addr.sin_addr; }
 
     const NetworkException *get_send_exception( void ) const
     {

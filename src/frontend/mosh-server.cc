@@ -221,7 +221,7 @@ int main( int argc, char *argv[] )
 
   /* Sanity-check arguments */
   if ( desired_ip
-       && ( strspn( desired_ip, "0123456789abcdef:." ) != strlen( desired_ip ) ) ) {
+       && ( strspn( desired_ip, "0123456789." ) != strlen( desired_ip ) ) ) {
     fprintf( stderr, "%s: Bad IP address (%s)\n", argv[ 0 ], desired_ip );
     print_usage( argv[ 0 ] );
     exit( 1 );
@@ -517,7 +517,8 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
   #ifdef HAVE_UTEMPTER
   bool connected_utmp = false;
 
-  std::string saved_addr("");
+  struct in_addr saved_addr;
+  saved_addr.s_addr = 0;
   #endif
 
   while ( 1 ) {
@@ -593,14 +594,14 @@ void serve( int host_fd, Terminal::Complete &terminal, ServerConnection &network
 
 	  #ifdef HAVE_UTEMPTER
 	  /* update utmp entry if we have become "connected" */
-          std::string remoteAddress = network.getRemoteIP();
-	  if ( (!connected_utmp) || ( saved_addr != remoteAddress ) ) {
+	  if ( (!connected_utmp)
+	       || ( saved_addr.s_addr != network.get_remote_ip().s_addr ) ) {
 	    utempter_remove_record( host_fd );
 
-	    saved_addr = remoteAddress;
+	    saved_addr = network.get_remote_ip();
 
 	    char tmp[ 64 ];
-	    snprintf( tmp, 64, "%s via mosh [%d]", saved_addr.c_str(), getpid() );
+	    snprintf( tmp, 64, "%s via mosh [%d]", inet_ntoa( saved_addr ), getpid() );
 	    utempter_add_record( host_fd, tmp );
 
 	    connected_utmp = true;
