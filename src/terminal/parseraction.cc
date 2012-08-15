@@ -42,7 +42,7 @@ std::string Action::str( void )
   char thechar[ 10 ] = { 0 };
   if ( char_present ) {
     if ( uni_isprint( ch ) )
-      uni_ucs4_to_utf8_c( ch, thechar, ch );
+      uni_ucs4_to_utf8_c( ch, thechar, 10 );
     else
       snprintf( thechar, 10, "(0x%x)", (unsigned int)ch );
   }
