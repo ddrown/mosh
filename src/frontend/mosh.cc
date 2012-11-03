@@ -296,7 +296,7 @@ int main( int argc, char *argv[] )
     hints.ai_socktype = SOCK_STREAM;
 
     if ( ( rv = getaddrinfo( host.c_str(),
-                             port_request.size() ? port_request.c_str() : "ssh",
+                             port.c_str(),
                              &hints,
                              &servinfo ) ) != 0 ) {
       die( "%s: Could not resolve hostname %s: getaddrinfo: %s",
