@@ -17,20 +17,25 @@ case "$1" in
 
     export OPENSSL_CFLAGS=-I${HOME}/droid/$BASEDIR/include/openssl/
     export OPENSSL_LIBS="-lssl -lcrypto"
+
     export USE_STATIC_GNUSTL=1
+
     ./configure --host=arm-linux --prefix=/$BASEDIR \
       CC=agcc CXX=ag++ \
       CPPFLAGS="-I$NCURSES_INCLUDE -I$GENERIC_INCLUDE" \
-      LDFLAGS="-L$LIBDIR"
-    # -lpthread comes from the cross-compiling machine's library requirements
+      LDFLAGS="-L$LIBDIR -ldl"
+
     # -lutil is needed for forkpty on the cross-compiling machine
-    # -fPIE/-pie breaks android's dynamic linker
-    sed -i -e 's/^protobuf_LIBS = -lprotobuf -lz -lpthread/protobuf_LIBS = -lprotobuf -lz/' \
-      -e 's/^mosh_server_LDADD = $(LDADD) -lutil/mosh_server_LDADD = $(LDADD)/' \
+    sed -i -e 's/^mosh_server_LDADD = $(LDADD) -lutil/mosh_server_LDADD = $(LDADD)/' \
       -e 's/^mosh_LDADD = $(LDADD) -lutil/mosh_LDADD = $(LDADD)/' \
-      -e 's/^\(HARDEN_CFLAGS = .*\)-fPIE\(.*\)/\1 \2/' \
-      -e 's/^\(HARDEN_LDFLAGS = .*\)-pie\(.*\)/\1 \2/' \
       src/frontend/Makefile
+
+    if [ "$WANT_PIE" = "nopie" ]; then
+      # -fPIE/-pie breaks android's dynamic linker on 4.0 and older
+      sed -i -e 's/^\(HARDEN_CFLAGS = .*\)-fPIE\(.*\)/\1 \2/' \
+        -e 's/^\(HARDEN_LDFLAGS = .*\)-pie\(.*\)/\1 \2/' \
+        src/frontend/Makefile
+    fi
     make
     ;;
 
