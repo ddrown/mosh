@@ -9,12 +9,19 @@ case "$1" in
       ./autogen.sh
     fi
     NCURSES_INCLUDE=~/droid/$BASEDIR/include/ncurses/
+    GENERIC_INCLUDE=~/droid/$BASEDIR/include/
+    LIBDIR=~/droid/$BASEDIR/lib/
+
+    export protobuf_LIBS="-lprotobuf"
+    export protobuf_CFLAGS=" "
+
     export OPENSSL_CFLAGS=-I${HOME}/droid/$BASEDIR/include/openssl/
     export OPENSSL_LIBS="-lssl -lcrypto"
     export USE_STATIC_GNUSTL=1
     ./configure --host=arm-linux --prefix=/$BASEDIR \
       CC=agcc CXX=ag++ \
-      CXXFLAGS="-I$NCURSES_INCLUDE"
+      CPPFLAGS="-I$NCURSES_INCLUDE -I$GENERIC_INCLUDE" \
+      LDFLAGS="-L$LIBDIR"
     # -lpthread comes from the cross-compiling machine's library requirements
     # -lutil is needed for forkpty on the cross-compiling machine
     # -fPIE/-pie breaks android's dynamic linker
