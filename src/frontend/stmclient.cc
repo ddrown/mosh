@@ -182,14 +182,14 @@ void STMClient::init( void )
     }
     string tmp;
     tmp = string( escape_pass_name_buf );
-    wstring escape_pass_name = std::wstring(tmp.begin(), tmp.end());
+    string escape_pass_name = std::string(tmp.begin(), tmp.end());
     tmp = string( escape_key_name_buf );
-    wstring escape_key_name = std::wstring(tmp.begin(), tmp.end());
-    escape_key_help = L"Commands: Ctrl-Z suspends, \".\" quits, " + escape_pass_name + L" gives literal " + escape_key_name;
+    string escape_key_name = std::string(tmp.begin(), tmp.end());
+    escape_key_help = "Commands: Ctrl-Z suspends, \".\" quits, " + escape_pass_name + " gives literal " + escape_key_name;
   }
   char tmp[ 128 ];
   snprintf( tmp, 128, "Nothing received from server on UDP port %s.", port.c_str() );
-  connecting_notification = wstring( tmp );
+  connecting_notification = string( tmp );
 }
 
 void STMClient::shutdown( void )
@@ -360,7 +360,7 @@ bool STMClient::process_user_input( int fd )
 	quit_sequence_started = false;
 
 	if ( overlays.get_notification_engine().get_notification_string() == escape_key_help ) {
-	  overlays.get_notification_engine().set_notification_string( L"" );
+	  overlays.get_notification_engine().set_notification_string( "" );
 	}
 
 	continue;

@@ -52,7 +52,7 @@ private:
   int escape_pass_key;
   int escape_pass_key2;
   bool escape_requires_lf;
-  std::wstring escape_key_help;
+  std::string escape_key_help;
 
   struct termios saved_termios, raw_termios;
 
@@ -86,7 +86,7 @@ public:
   STMClient( const char *s_ip, const char *s_port, const char *s_key, const char *predict_mode )
     : ip( s_ip ), port( s_port ), key( s_key ),
     escape_key( 0x1E ), escape_pass_key( '^' ), escape_pass_key2( '^' ),
-    escape_requires_lf( false ), escape_key_help( L"?" ),
+    escape_requires_lf( false ), escape_key_help( "?" ),
       saved_termios(), raw_termios(),
       window_size(),
       local_framebuffer( NULL ),
