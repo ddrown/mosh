@@ -1,0 +1,61 @@
+#!/bin/sh
+set -e 
+
+PACKAGE=mosh
+
+case "$1" in
+  build)
+    if [ \! -f configure ]; then
+      ./autogen.sh
+    fi
+    NCURSES_INCLUDE=~/droid/$BASEDIR/include/ncurses/
+    GENERIC_INCLUDE=~/droid/$BASEDIR/include/
+    LIBDIR=~/droid/$BASEDIR/lib/
+
+    export protobuf_LIBS="-lprotobuf"
+    export protobuf_CFLAGS=" "
+
+    export OPENSSL_CFLAGS=-I${HOME}/droid/$BASEDIR/include/openssl/
+    export OPENSSL_LIBS="-lssl -lcrypto"
+
+    export USE_STATIC_GNUSTL=1
+
+    if [ "$WANT_PIE" = "nopie" -a "$ARCH_NAME" = "arm" ]; then # support back to ARMv5(ARM9E) for Android 2.3, default is ARMv7(Cortex)
+      export ANDROID_CPU_ARCH="armeabi"
+    fi
+
+    ./configure --host=arm-linux --prefix=/$BASEDIR \
+      CC=agcc CXX=ag++ \
+      CPPFLAGS="-I$NCURSES_INCLUDE -I$GENERIC_INCLUDE" \
+      LDFLAGS="-L$LIBDIR -ldl"
+
+    # -lutil is needed for forkpty on the cross-compiling machine
+    sed -i -e 's/^mosh_server_LDADD = $(LDADD) -lutil/mosh_server_LDADD = $(LDADD)/' \
+      -e 's/^mosh_LDADD = $(LDADD) -lutil/mosh_LDADD = $(LDADD)/' \
+      src/frontend/Makefile
+
+    if [ "$WANT_PIE" = "nopie" ]; then
+      # -fPIE/-pie breaks android's dynamic linker on 4.0 and older
+      sed -i -e 's/^\(HARDEN_CFLAGS = .*\)-fPIE\(.*\)/\1 \2/' \
+        -e 's/^\(HARDEN_LDFLAGS = .*\)-pie\(.*\)/\1 \2/' \
+        src/frontend/Makefile
+    fi
+    make
+    ;;
+
+  install)
+    DESTDIR=~/tmp/$PACKAGE
+    rm -rf $DESTDIR
+    mkdir -p $DESTDIR
+    make install DESTDIR=$DESTDIR
+    astrip $DESTDIR/$BASEDIR/bin/mosh-client
+    ;;
+    
+  clean)
+    make clean
+    ;;
+
+  *)
+    echo unknown argument $1
+    ;;
+esac
