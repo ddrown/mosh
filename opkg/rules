@@ -20,6 +20,10 @@ case "$1" in
 
     export USE_STATIC_GNUSTL=1
 
+    if [ "$WANT_PIE" = "nopie" -a "$ARCH_NAME" = "arm" ]; then # support back to ARMv5(ARM9E) for Android 2.3, default is ARMv7(Cortex)
+      export ANDROID_CPU_ARCH="armeabi"
+    fi
+
     ./configure --host=arm-linux --prefix=/$BASEDIR \
       CC=agcc CXX=ag++ \
       CPPFLAGS="-I$NCURSES_INCLUDE -I$GENERIC_INCLUDE" \
