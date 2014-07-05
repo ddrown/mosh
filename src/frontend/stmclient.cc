@@ -118,7 +118,7 @@ void STMClient::init( void )
 
   /* Add our name to window title */
   if ( !getenv( "MOSH_TITLE_NOPREFIX" ) ) {
-    overlays.set_title_prefix( wstring( L"[mosh] " ) );
+    overlays.set_title_prefix( string( "[mosh] " ) );
   }
 
   /* Set terminal escape key. */
@@ -187,17 +187,17 @@ void STMClient::init( void )
     wstring escape_key_name = std::wstring(tmp.begin(), tmp.end());
     escape_key_help = L"Commands: Ctrl-Z suspends, \".\" quits, " + escape_pass_name + L" gives literal " + escape_key_name;
   }
-  wchar_t tmp[ 128 ];
-  swprintf( tmp, 128, L"Nothing received from server on UDP port %s.", port.c_str() );
+  char tmp[ 128 ];
+  snprintf( tmp, 128, "Nothing received from server on UDP port %s.", port.c_str() );
   connecting_notification = wstring( tmp );
 }
 
 void STMClient::shutdown( void )
 {
   /* Restore screen state */
-  overlays.get_notification_engine().set_notification_string( wstring( L"" ) );
+  overlays.get_notification_engine().set_notification_string( string( "" ) );
   overlays.get_notification_engine().server_heard( timestamp() );
-  overlays.set_title_prefix( wstring( L"" ) );
+  overlays.set_title_prefix( string( "" ) );
   output_new_frame();
 
   /* Restore terminal and terminal-driver state */
@@ -324,7 +324,7 @@ bool STMClient::process_user_input( int fd )
       if ( quit_sequence_started ) {
 	if ( the_byte == '.' ) { /* Quit sequence is Ctrl-^ . */
 	  if ( network->has_remote_addr() && (!network->shutdown_in_progress()) ) {
-	    overlays.get_notification_engine().set_notification_string( wstring( L"Exiting on user request..." ), true );
+	    overlays.get_notification_engine().set_notification_string( string( "Exiting on user request..." ), true );
 	    network->start_shutdown();
 	    return true;
 	  } else {
@@ -472,7 +472,7 @@ void STMClient::main( void )
 	  if ( !network->has_remote_addr() ) {
 	    break;
 	  } else if ( !network->shutdown_in_progress() ) {
-	    overlays.get_notification_engine().set_notification_string( wstring( L"Exiting..." ), true );
+	    overlays.get_notification_engine().set_notification_string( string( "Exiting..." ), true );
 	    network->start_shutdown();
 	  }
 	}
@@ -495,7 +495,7 @@ void STMClient::main( void )
         if ( !network->has_remote_addr() ) {
           break;
         } else if ( !network->shutdown_in_progress() ) {
-          overlays.get_notification_engine().set_notification_string( wstring( L"Signal received, shutting down..." ), true );
+          overlays.get_notification_engine().set_notification_string( string( "Signal received, shutting down..." ), true );
           network->start_shutdown();
         }
       }
@@ -505,7 +505,7 @@ void STMClient::main( void )
 	if ( !network->has_remote_addr() ) {
 	  break;
 	} else if ( !network->shutdown_in_progress() ) {
-	  overlays.get_notification_engine().set_notification_string( wstring( L"Exiting..." ), true );
+	  overlays.get_notification_engine().set_notification_string( string( "Exiting..." ), true );
 	  network->start_shutdown();
 	}
       }
@@ -533,7 +533,7 @@ void STMClient::main( void )
 	   && (timestamp() - network->get_latest_remote_state().timestamp > 250) ) {
 	if ( timestamp() - network->get_latest_remote_state().timestamp > 15000 ) {
 	  if ( !network->shutdown_in_progress() ) {
-	    overlays.get_notification_engine().set_notification_string( wstring( L"Timed out waiting for server..." ), true );
+	    overlays.get_notification_engine().set_notification_string( string( "Timed out waiting for server..." ), true );
 	    network->start_shutdown();
 	  }
 	} else {
@@ -542,7 +542,7 @@ void STMClient::main( void )
       } else if ( (network->get_remote_state_num() != 0)
 		  && (overlays.get_notification_engine().get_notification_string()
 		      == connecting_notification) ) {
-	overlays.get_notification_engine().set_notification_string( L"" );
+	overlays.get_notification_engine().set_notification_string( "" );
       }
 
       network->tick();
@@ -567,9 +567,9 @@ void STMClient::main( void )
       if ( e.fatal ) {
         throw;
       } else {
-        wchar_t tmp[ 128 ];
-        swprintf( tmp, 128, L"Crypto exception: %s", e.text.c_str() );
-        overlays.get_notification_engine().set_notification_string( wstring( tmp ) );
+        char tmp[ 128 ];
+        snprintf( tmp, 128, "Crypto exception: %s", e.text.c_str() );
+        overlays.get_notification_engine().set_notification_string( string( tmp ) );
       }
     }
   }

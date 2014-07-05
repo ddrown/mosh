@@ -47,7 +47,7 @@ namespace Overlay {
   using std::deque;
   using std::list;
   using std::vector;
-  using std::wstring;
+  using std::string;
 
   enum Validity {
     Pending,
@@ -144,7 +144,7 @@ namespace Overlay {
   private:
     uint64_t last_word_from_server;
     uint64_t last_acked_state;
-    wstring message;
+    string message;
     bool message_is_network_exception;
     uint64_t message_expiration;
     bool show_quit_keystroke;
@@ -156,12 +156,12 @@ namespace Overlay {
   public:
     void adjust_message( void );
     void apply( Framebuffer &fb ) const;
-    const wstring &get_notification_string( void ) const { return message; }
+    const string &get_notification_string( void ) const { return message; }
     void server_heard( uint64_t s_last_word ) { last_word_from_server = s_last_word; }
     void server_acked( uint64_t s_last_acked ) { last_acked_state = s_last_acked; }
     int wait_time( void ) const;
 
-    void set_notification_string( const wstring &s_message, bool permanent = false, bool s_show_quit_keystroke = true )
+    void set_notification_string( const string &s_message, bool permanent = false, bool s_show_quit_keystroke = true )
     {
       message = s_message;
       if ( permanent ) {
@@ -175,8 +175,8 @@ namespace Overlay {
 
     void set_network_exception( const NetworkException &e )
     {
-      wchar_t tmp[ 128 ];
-      swprintf( tmp, 128, L"%s: %s", e.function.c_str(), strerror( e.the_errno ) );
+      char tmp[ 128 ];
+      snprintf( tmp, 128, "%s: %s", e.function.c_str(), strerror( e.the_errno ) );
 
       message = tmp;
       message_is_network_exception = true;
@@ -301,11 +301,11 @@ namespace Overlay {
 
   class TitleEngine {
   private:
-    deque<wchar_t> prefix;
+    deque<unichar_t> prefix;
 
   public:
     void apply( Framebuffer &fb ) const { fb.prefix_window_title( prefix ); }
-    void set_prefix( const wstring s );
+    void set_prefix( const string s );
     TitleEngine() : prefix() {}
   };
 
@@ -322,7 +322,7 @@ namespace Overlay {
     NotificationEngine & get_notification_engine( void ) { return notifications; }
     PredictionEngine & get_prediction_engine( void ) { return predictions; }
 
-    void set_title_prefix( const wstring s ) { title.set_prefix( s ); }
+    void set_title_prefix( const string s ) { title.set_prefix( s ); }
 
     OverlayManager() : notifications(), predictions(), title() {}
 

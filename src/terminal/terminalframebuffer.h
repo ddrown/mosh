@@ -38,6 +38,7 @@
 #include <string>
 #include <list>
 #include <assert.h>
+#include "unichar.h"
 
 /* Terminal framebuffer */
 
@@ -67,7 +68,7 @@ namespace Terminal {
 
   class Cell {
   public:
-    std::vector<wchar_t> contents;
+    std::vector<unichar_t> contents;
     char fallback; /* first character is combining character */
     int width;
     Renditions renditions;
@@ -102,7 +103,7 @@ namespace Terminal {
 	       && (wrap == x.wrap) );
     }
 
-    wchar_t debug_contents( void ) const;
+    unichar_t debug_contents( void ) const;
 
     bool is_blank( void ) const
     {
@@ -251,8 +252,8 @@ namespace Terminal {
   private:
     typedef std::deque<Row> rows_type;
     rows_type rows;
-    std::deque<wchar_t> icon_name;
-    std::deque<wchar_t> window_title;
+    std::deque<unichar_t> icon_name;
+    std::deque<unichar_t> window_title;
     unsigned int bell_count;
     bool title_initialized; /* true if the window title has been set via an OSC */
 
@@ -320,12 +321,12 @@ namespace Terminal {
 
     void set_title_initialized( void ) { title_initialized = true; }
     bool is_title_initialized( void ) const { return title_initialized; }
-    void set_icon_name( const std::deque<wchar_t> &s ) { icon_name = s; }
-    void set_window_title( const std::deque<wchar_t> &s ) { window_title = s; }
-    const std::deque<wchar_t> & get_icon_name( void ) const { return icon_name; }
-    const std::deque<wchar_t> & get_window_title( void ) const { return window_title; }
+    void set_icon_name( const std::deque<unichar_t> &s ) { icon_name = s; }
+    void set_window_title( const std::deque<unichar_t> &s ) { window_title = s; }
+    const std::deque<unichar_t> & get_icon_name( void ) const { return icon_name; }
+    const std::deque<unichar_t> & get_window_title( void ) const { return window_title; }
 
-    void prefix_window_title( const std::deque<wchar_t> &s );
+    void prefix_window_title( const std::deque<unichar_t> &s );
 
     void resize( int s_width, int s_height );
 
