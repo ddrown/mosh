@@ -245,9 +245,9 @@ void NotificationEngine::apply( Framebuffer &fb ) const
 				       "seconds" ).c_str(),
 	      keystroke_str );
   } else if ( (!message.empty()) && (!time_expired) ) {
-    snprintf( tmp, 128, "mosh: %ls%s", message.c_str(), keystroke_str );
+    snprintf( tmp, 128, "mosh: %s%s", message.c_str(), keystroke_str );
   } else {
-    snprintf( tmp, 128, "mosh: %ls (%s without %s.)%s", message.c_str(),
+    snprintf( tmp, 128, "mosh: %s (%s without %s.)%s", message.c_str(),
 	      human_readable_duration( static_cast<int>( time_elapsed ),
 				       "s" ).c_str(),
 	      explanation, keystroke_str );
