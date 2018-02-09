@@ -43,6 +43,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "dos_assert.h"
 #include "fatal_assert.h"
@@ -248,6 +249,11 @@ Connection::Connection( const char *desired_ip, const char *desired_port ) /* se
     RTT_hit( false ),
     SRTT( 1000 ),
     RTTVAR( 500 ),
+    MIN_RTO( 50 ),
+    MAX_RTO( 1000 ),
+    SERVER_ASSOCIATION_TIMEOUT( 40000 ),
+    PORT_HOP_INTERVAL( 10000 ),
+    MAX_OLD_SOCKET_AGE( 60000 ),
     send_error()
 {
   setup();
@@ -370,6 +376,11 @@ Connection::Connection( const char *key_str, const char *ip, const char *port ) 
     RTT_hit( false ),
     SRTT( 1000 ),
     RTTVAR( 500 ),
+    MIN_RTO( 50 ),
+    MAX_RTO( 1000 ),
+    SERVER_ASSOCIATION_TIMEOUT( 40000 ),
+    PORT_HOP_INTERVAL( 10000 ),
+    MAX_OLD_SOCKET_AGE( 60000 ),
     send_error()
 {
   setup();
@@ -390,6 +401,19 @@ Connection::Connection( const char *key_str, const char *ip, const char *port ) 
   socks.push_back( Socket( remote_addr.sa.sa_family ) );
 
   set_MTU( remote_addr.sa.sa_family );
+
+#define SET_FROM_ENV(var) if(getenv( "MOSH_" #var )) { \
+    char *envstr = getenv( "MOSH_" #var ); \
+    var = atoi(envstr); \
+  }
+
+  SET_FROM_ENV(MIN_RTO);
+  SET_FROM_ENV(MAX_RTO);
+  SET_FROM_ENV(SERVER_ASSOCIATION_TIMEOUT);
+  SET_FROM_ENV(PORT_HOP_INTERVAL);
+  SET_FROM_ENV(MAX_OLD_SOCKET_AGE);
+
+#undef SET_FROM_ENV
 }
 
 void Connection::send( const string & s )

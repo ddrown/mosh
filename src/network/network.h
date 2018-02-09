@@ -130,17 +130,10 @@ namespace Network {
     /* IPv6 MTU. Use the guaranteed minimum to avoid fragmentation. */
     static const int DEFAULT_IPV6_MTU = 1280;
 
-    static const uint64_t MIN_RTO = 50; /* ms */
-    static const uint64_t MAX_RTO = 1000; /* ms */
-
     static const int PORT_RANGE_LOW  = 60001;
     static const int PORT_RANGE_HIGH = 60999;
 
-    static const unsigned int SERVER_ASSOCIATION_TIMEOUT = 40000;
-    static const unsigned int PORT_HOP_INTERVAL          = 10000;
-
     static const unsigned int MAX_PORTS_OPEN             = 10;
-    static const unsigned int MAX_OLD_SOCKET_AGE         = 60000;
 
     static const int CONGESTION_TIMESTAMP_PENALTY = 500; /* ms */
 
@@ -186,6 +179,12 @@ namespace Network {
     bool RTT_hit;
     double SRTT;
     double RTTVAR;
+
+    uint64_t MIN_RTO;
+    uint64_t MAX_RTO;
+    unsigned int SERVER_ASSOCIATION_TIMEOUT;
+    unsigned int PORT_HOP_INTERVAL;
+    unsigned int MAX_OLD_SOCKET_AGE;
 
     /* Error from send()/sendto(). */
     string send_error;
