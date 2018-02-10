@@ -394,6 +394,8 @@ Connection::Connection( const char *key_str, const char *ip, const char *port ) 
 
 void Connection::send( const string & s )
 {
+  static uint64_t last_packet_send = 0;
+
   if ( !has_remote_addr ) {
     return;
   }
@@ -401,6 +403,13 @@ void Connection::send( const string & s )
   Packet px = new_packet( s );
 
   string p = session.encrypt( px.toMessage() );
+
+#define MIN_TIME_BETWEEN_PACKETS 50
+  uint64_t now = timestamp();
+  if(server && (now - last_packet_send < MIN_TIME_BETWEEN_PACKETS)) {
+    usleep((MIN_TIME_BETWEEN_PACKETS - now + last_packet_send)*1000);
+  }
+  last_packet_send = timestamp();
 
   ssize_t bytes_sent = sendto( sock(), p.data(), p.size(), MSG_DONTWAIT,
 			       &remote_addr.sa, remote_addr_len );
@@ -415,7 +424,7 @@ void Connection::send( const string & s )
     }
   }
 
-  uint64_t now = timestamp();
+  now = timestamp();
   if ( server ) {
     if ( now - last_heard > SERVER_ASSOCIATION_TIMEOUT ) {
       has_remote_addr = false;
